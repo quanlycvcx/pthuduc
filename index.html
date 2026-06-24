@@ -6,7 +6,7 @@
         <meta name="viewport" content="initial-scale=1,user-scalable=no,maximum-scale=1,width=device-width">
         <meta name="mobile-web-app-capable" content="yes">
         <meta name="apple-mobile-web-app-capable" content="yes">
-        <title>Quản lý </title>
+        <title>Quản lý</title>
         
         <link rel="stylesheet" href="css/leaflet.css">
         <link rel="stylesheet" href="css/L.Control.Layers.Tree.css">
@@ -235,6 +235,7 @@
             cursor: pointer; 
             color: #aaa; 
         }
+        .modal-close-btn:hover { color: #666; }
         .modal-footer { margin-top: 20px; display: flex; justify-content: flex-end; gap: 10px; }
         
         .dropzone { 
@@ -715,7 +716,6 @@
         var layer_GEHybrid_0 = L.tileLayer('http://mt0.google.com/vt/lyrs=y&hl=en&x={x}&y={y}&z={z}', {
             pane: 'pane_GEHybrid_0', opacity: 1.0, attribution: '', minZoom: 1, maxZoom: 28, minNativeZoom: 0, maxNativeZoom: 30
         });
-        // Bật lớp Google Hybrid làm bản đồ nền mặc định
         map.addLayer(layer_GEHybrid_0);
 
         map.createPane('pane_GoogleMaps_1');
@@ -723,7 +723,6 @@
         var layer_GoogleMaps_1 = L.tileLayer('https://mt1.google.com/vt/lyrs=m&x={x}&y={y}&z={z}', {
             pane: 'pane_GoogleMaps_1', opacity: 1.0, attribution: '', minZoom: 1, maxZoom: 28, minNativeZoom: 0, maxNativeZoom: 22
         });
-        // Ẩn lớp Google Maps bằng cách bỏ dòng: map.addLayer(layer_GoogleMaps_1);
 
         map.createPane('pane_GoogleTraffic_Traffic');
         map.getPane('pane_GoogleTraffic_Traffic').style.zIndex = 405;
@@ -886,9 +885,17 @@
                 shadowSize: [41, 41]
             })
         });
+        
+        // CẤU HÌNH ĐÃ ĐƯỢC HIỆU CHỈNH: Tối ưu hóa đo khoảng cách/vẽ đường mượt mà trên di động
         var drawLineHandler = new L.Draw.Polyline(map, {
-            shapeOptions: { color: '#007bff', weight: 4 }, metric: true
+            shapeOptions: { color: '#007bff', weight: 4 },
+            metric: true,
+            feet: false,
+            nautic: false,
+            repeatMode: false,
+            touchExtend: true // Cho phép ghi nhận cảm ứng kéo dài liên tục trên Mobile
         });
+
         var drawPolyHandler = new L.Draw.Polygon(map, {
             shapeOptions: { color: '#28a745', weight: 3, fillOpacity: 0.2 }, metric: true
         });
@@ -902,7 +909,7 @@
         $('#custom-draw-line-btn').click(function(e) {
             e.preventDefault(); drawMarkerHandler.disable(); drawPolyHandler.disable();
             $(this).toggleClass('btn-active'); $('#custom-draw-marker-btn, #custom-draw-poly-btn').removeClass('btn-active');
-            if ($(this).hasClass('btn-active')) { drawLineHandler.enable(); showToast("Bắt đầu vẽ đường / Đo khoảng cách. Nhấp đúp để hoàn tất.", "info"); } else { drawLineHandler.disable(); }
+            if ($(this).hasClass('btn-active')) { drawLineHandler.enable(); showToast("Bắt đầu vẽ đường. Nhấp đúp (hoặc nhấp vào điểm cuối) để kết thúc nét vẽ.", "info"); } else { drawLineHandler.disable(); }
         });
 
         $('#custom-draw-poly-btn').click(function(e) {
@@ -947,7 +954,7 @@
                     let pt = layer.getLatLng();
                     kml += `  <Placemark>\n    <name>Diem khao sat thuc dia</name>\n    <description><![CDATA[Mô tả tổng: ${description}]]></description>\n    <Point>\n      <coordinates>${pt.lng},${pt.lat},0</coordinates>\n    </Point>\n  </Placemark>\n`;
                 } else if (layer instanceof L.Polyline && !(layer instanceof L.Polygon)) {
-                    kml += `  <Placemark>\n    <name>Duong do dac thuc dia</name>\n    <description><![CDATA[Mô tả tổng: ${description}]]></description>\n    <LineString>\n      <coordinates>\n`;
+                    kml += `  <Placemark>\n    <name>Duong do ve</name>\n    <description><![CDATA[Mô tả tổng: ${description}]]></description>\n    <LineString>\n      <coordinates>\n`;
                     layer.getLatLngs().forEach(pt => { kml += `        ${pt.lng},${pt.lat},0\n`; });
                     kml += `      </coordinates>\n    </LineString>\n  </Placemark>\n`;
                 } else if (layer instanceof L.Polygon) {
@@ -974,7 +981,6 @@
             setTimeout(() => { toast.className = ''; }, 3000);
         }
         
-        // --- CHỨC NĂNG DUYỆT FILE GOOGLE DRIVE TỪ APPS SCRIPT ---
         $('#custom-browse-drive-btn').click(function(e) {
             e.preventDefault();
             $('#drive-browser-modal').addClass('visible');
