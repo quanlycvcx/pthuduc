@@ -424,6 +424,9 @@
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8c-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4-1.79-4-4-4zm8.94 3c-.46-4.17-3.77-7.48-7.94-7.94V1h-2v2.06C6.83 3.52 3.52 6.83 3.06 11H1v2h2.06c.46 4.17 3.77 7.48 7.94 7.94V23h2v-2.06c4.17-.46 7.48-3.77 7.94-7.94H23v-2h-2.06zM12 19c-3.87 0-7-3.13-7-7s3.13-7 7-7 7 3.13 7 7-3.13 7-7 7z"/></svg>
             </a>
             
+            <button id="custom-draw-marker-btn" title="Đánh Dấu Điểm Vị Trí">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>
+            </button>
             <button id="custom-draw-line-btn" title="Đo Khoảng Cách / Vẽ Đường">
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M23 8c0 1.1-.9 2-2 2-.18 0-.35-.02-.51-.07l-3.56 3.55c.05.16.07.33.07.52 0 1.1-.9 2-2 2s-2-.9-2-2c0-.19.02-.36.07-.52l-2.55-2.55c-.16.05-.33.07-.52.07s-.36-.02-.52-.07l-4.55 4.56c.05.16.07.33.07.52 0 1.1-.9 2-2 2s-2-.9-2-2 .9-2 2-2c.19 0 .36.02.52.07l4.56-4.55C3.02 10.36 3 10.19 3 10c0-1.1.9-2 2-2s2 .9 2 2c0 .19-.02.36-.07.52l2.55 2.55c.16-.05.33-.07.52-.07s.36.02.52.07l3.55-3.56C14.02 9.35 14 9.18 14 9c0-1.1.9-2 2-2s2 .9 2 2c0 .18-.02.35-.07.51l3.56 3.56c.16-.05.33-.07.51-.07 1.1 0 2 .9 2 2z"/></svg>
             </button>
@@ -641,7 +644,7 @@
         <script src="data/PThuDuc_3.js"></script>
 
         <script>
-        const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyXxLRvG5XrVUeOSCRc8WMmtYV4cyc-bA7-rPIo2qGERu32w0_ahnItJNIKfc0udijL/exec';
+        const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzckg1oCmPyGiN24c_InJNXfo0kBZmPei8aqRDZFt8BBeXumJTo-Rjabo1o9iQ8Ga-w/exec';
 
         var map = L.map('map', {
             zoomControl:false, maxZoom:28, minZoom:1
@@ -712,18 +715,20 @@
         var layer_GEHybrid_0 = L.tileLayer('http://mt0.google.com/vt/lyrs=y&hl=en&x={x}&y={y}&z={z}', {
             pane: 'pane_GEHybrid_0', opacity: 1.0, attribution: '', minZoom: 1, maxZoom: 28, minNativeZoom: 0, maxNativeZoom: 30
         });
+        // Bật lớp Google Hybrid làm bản đồ nền mặc định
+        map.addLayer(layer_GEHybrid_0);
 
         map.createPane('pane_GoogleMaps_1');
         map.getPane('pane_GoogleMaps_1').style.zIndex = 401;
         var layer_GoogleMaps_1 = L.tileLayer('https://mt1.google.com/vt/lyrs=m&x={x}&y={y}&z={z}', {
             pane: 'pane_GoogleMaps_1', opacity: 1.0, attribution: '', minZoom: 1, maxZoom: 28, minNativeZoom: 0, maxNativeZoom: 22
         });
-	    map.addLayer(layer_GoogleMaps_1);
+        // Ẩn lớp Google Maps bằng cách bỏ dòng: map.addLayer(layer_GoogleMaps_1);
 
         map.createPane('pane_GoogleTraffic_Traffic');
         map.getPane('pane_GoogleTraffic_Traffic').style.zIndex = 405;
         var layer_GoogleTraffic_1 = L.tileLayer('https://mt1.google.com/vt/lyrs=h@159000000,traffic&hl=vi&x={x}&y={y}&z={z}', {
-            pane: 'pane_GoogleTraffic_Traffic', opacity: 0.85, minZoom: 1, maxZoom: 28
+            pane: 'pane_GoogleTraffic_Traffic', opacity: 0.6, minZoom: 1, maxZoom: 28
         });
 
         map.createPane('pane_OpenWeatherPrecipitation');
@@ -737,12 +742,11 @@
         var layer_HydroEstimatorRainfall_4 = L.WMS.layer("https://realearth.ssec.wisc.edu/cgi-bin/mapserv?map=NESDIS-GHE-HourlyRainfall.map&version=1.3", "current", {
             pane: 'pane_HydroEstimatorRainfall_4', format: 'image/png', uppercase: true, transparent: true, continuousWorld : true, tiled: true, info_format: 'text/html', opacity: 0.55, identify: false, attribution: '',
         });
-       // map.addLayer(layer_HydroEstimatorRainfall_4);
 
         map.createPane('pane_RainViewerRadar');
         map.getPane('pane_RainViewerRadar').style.zIndex = 403;
         var layer_RainViewerRadar = L.tileLayer('', {
-            pane: 'pane_RainViewerRadar', opacity: 0.8, attribution: '© RainViewer'
+            pane: 'pane_RainViewerRadar', opacity: 0.6, attribution: '© RainViewer'
         });
 
         async function initRainViewerLayer() {
@@ -838,15 +842,11 @@
             {label: '<b>Mật độ lưu thông:</b>', children: [
                 {label: "Mật độ lưu thông", layer: layer_GoogleTraffic_1}
             ]},
-            //{label: '<b>Ranh giới:</b>', children: [
-                //{label: '<img src="legend/PThuDuc_3.png" /> Ranh Phường/Xã', layer: layer_PThuDuc_3},
-               // {label: '<img src="legend/GT_KV2_11_2.png" />KV2', layer: layer_GT_KV2_11_2}
-            //]},
             externalLayersNode, 
 			{label: '<b>Bản đồ nền:</b>', children: [
                 {label: "Google Maps", layer: layer_GoogleMaps_1},
                 {label: "Google Satellite Hybrid", layer: layer_GEHybrid_0},
-            ]}
+			]}
         ];
         
         var lay = L.control.layers.tree(null, overlaysTree, { collapsed: true });
@@ -876,6 +876,16 @@
 
         var drawnItems = new L.FeatureGroup().addTo(map);
         
+        var drawMarkerHandler = new L.Draw.Marker(map, {
+            icon: L.icon({
+                iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-red.png',
+                shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-shadow.png',
+                iconSize: [25, 41],
+                iconAnchor: [12, 41],
+                popupAnchor: [1, -34],
+                shadowSize: [41, 41]
+            })
+        });
         var drawLineHandler = new L.Draw.Polyline(map, {
             shapeOptions: { color: '#007bff', weight: 4 }, metric: true
         });
@@ -883,19 +893,30 @@
             shapeOptions: { color: '#28a745', weight: 3, fillOpacity: 0.2 }, metric: true
         });
 
+        $('#custom-draw-marker-btn').click(function(e) {
+            e.preventDefault(); drawLineHandler.disable(); drawPolyHandler.disable();
+            $(this).toggleClass('btn-active'); $('#custom-draw-line-btn, #custom-draw-poly-btn').removeClass('btn-active');
+            if ($(this).hasClass('btn-active')) { drawMarkerHandler.enable(); showToast("Bắt đầu chọn vị trí. Nhấp vào bản đồ để tạo điểm mốc.", "info"); } else { drawMarkerHandler.disable(); }
+        });
+
         $('#custom-draw-line-btn').click(function(e) {
-            e.preventDefault(); drawPolyHandler.disable(); $(this).toggleClass('btn-active'); $('#custom-draw-poly-btn').removeClass('btn-active');
+            e.preventDefault(); drawMarkerHandler.disable(); drawPolyHandler.disable();
+            $(this).toggleClass('btn-active'); $('#custom-draw-marker-btn, #custom-draw-poly-btn').removeClass('btn-active');
             if ($(this).hasClass('btn-active')) { drawLineHandler.enable(); showToast("Bắt đầu vẽ đường / Đo khoảng cách. Nhấp đúp để hoàn tất.", "info"); } else { drawLineHandler.disable(); }
         });
 
         $('#custom-draw-poly-btn').click(function(e) {
-            e.preventDefault(); drawLineHandler.disable(); $(this).toggleClass('btn-active'); $('#custom-draw-line-btn').removeClass('btn-active');
+            e.preventDefault(); drawMarkerHandler.disable(); drawLineHandler.disable();
+            $(this).toggleClass('btn-active'); $('#custom-draw-marker-btn, #custom-draw-line-btn').removeClass('btn-active');
             if ($(this).hasClass('btn-active')) { drawPolyHandler.enable(); showToast("Bắt đầu vẽ vùng / Đo diện tích. Nhấp vào điểm đầu để khép góc.", "info"); } else { drawPolyHandler.disable(); }
         });
 
         map.on(L.Draw.Event.CREATED, function (event) {
             var layer = event.layer; var type = event.layerType; let popupContent = "";
-            if (type === 'polyline') {
+            if (type === 'marker') {
+                var latlng = layer.getLatLng();
+                popupContent = `<b>Tọa độ điểm vẽ:</b> ${latlng.lat.toFixed(6)}, ${latlng.lng.toFixed(6)}`;
+            } else if (type === 'polyline') {
                 var latlngs = layer.getLatLngs(); var distance = 0;
                 for (var i = 0; i < latlngs.length - 1; i++) { distance += latlngs[i].distanceTo(latlngs[i+1]); }
                 popupContent = `<b>Độ dài tuyến:</b> ${(distance >= 1000) ? (distance/1000).toFixed(2) + ' km' : distance.toFixed(1) + ' m'}`;
@@ -904,7 +925,7 @@
                 popupContent = `<b>Diện tích vùng:</b> ${(area >= 1000000) ? (area/1000000).toFixed(2) + ' km²' : area.toFixed(1) + ' m²'}`;
             }
             layer.bindPopup(popupContent).addTo(drawnItems); layer.openPopup();
-            $('#custom-draw-line-btn, #custom-draw-poly-btn').removeClass('btn-active'); $('#custom-export-kml-btn').show();
+            $('#custom-draw-marker-btn, #custom-draw-line-btn, #custom-draw-poly-btn').removeClass('btn-active'); $('#custom-export-kml-btn').show();
         });
 
         $('#custom-export-kml-btn').click(function(e) {
@@ -922,7 +943,10 @@
 
             let kml = `<?xml version="1.0" encoding="UTF-8"?>\n<kml xmlns="http://www.opengis.net/kml/2.2">\n<Document>\n<name>${fileName}</name>\n<description><![CDATA[${description}]]></description>\n`;
             drawnItems.eachLayer(function(layer) {
-                if (layer instanceof L.Polyline && !(layer instanceof L.Polygon)) {
+                if (layer instanceof L.Marker) {
+                    let pt = layer.getLatLng();
+                    kml += `  <Placemark>\n    <name>Diem khao sat thuc dia</name>\n    <description><![CDATA[Mô tả tổng: ${description}]]></description>\n    <Point>\n      <coordinates>${pt.lng},${pt.lat},0</coordinates>\n    </Point>\n  </Placemark>\n`;
+                } else if (layer instanceof L.Polyline && !(layer instanceof L.Polygon)) {
                     kml += `  <Placemark>\n    <name>Duong do dac thuc dia</name>\n    <description><![CDATA[Mô tả tổng: ${description}]]></description>\n    <LineString>\n      <coordinates>\n`;
                     layer.getLatLngs().forEach(pt => { kml += `        ${pt.lng},${pt.lat},0\n`; });
                     kml += `      </coordinates>\n    </LineString>\n  </Placemark>\n`;
@@ -958,7 +982,7 @@
         });
 
         function loadDriveFilesList() {
-            $('#drive-files-list').html('<p style="text-align:center; color:#888;">Đang kết nối thư mục dữ liệu Drive...</p>');
+            $('#drive-files-list').html('<p style="text-align:center; color:#888;">Đang kết nối thư mục dữ liệu...</p>');
             
             fetch(`${APPS_SCRIPT_URL}?action=listFiles`, {
                 method: 'GET',
@@ -1041,7 +1065,7 @@
         $('#info-btn').click(toggleWeatherInfo);
 
         async function getWeather(lat, lng, locationName) {
-          document.getElementById('weather-info').innerHTML = `<div class="weather-header"><button class="weather-close-btn" onclick="hideWeatherInfoPanel()">×</button></div> Đang tải thời tiết...`;
+          document.getElementById('weather-info').innerHTML = `<div class="weather-header"><button class="weather-close-btn" onclick="hideWeatherInfoPanel()">×</button> Đang tải thời tiết...`;
           document.getElementById('weather-info').classList.remove('hidden'); document.getElementById('info-btn').classList.add('btn-active');
           try {
             const forecastUrl = `https://api.openweathermap.org/data/2.5/forecast?lat=${lat}&lon=${lng}&appid=${extState.openWeatherApiKey}&units=metric&lang=vi&cnt=40`;
@@ -1116,7 +1140,7 @@
             L.DomEvent.stopPropagation(e); const latlng = e.latlng;
             if (extState.isPickingStart) { extState.startCoord = latlng; document.getElementById('directions-start-input').value = `${latlng.lat.toFixed(6)}, ${latlng.lng.toFixed(6)}`; resetMapPickers(); toggleDirectionsModal(true); showToast("Đã ghi nhận điểm xuất phát từ bản đồ", "success"); return; }
             if (extState.isPickingEnd) { extState.endCoord = latlng; document.getElementById('directions-end-input').value = `${latlng.lat.toFixed(6)}, ${latlng.lng.toFixed(6)}`; resetMapPickers(); toggleDirectionsModal(true); showToast("Đã ghi nhận điểm đến từ bản đồ", "success"); return; }
-            if (drawLineHandler._enabled || drawPolyHandler._enabled) return;
+            if (drawMarkerHandler._enabled || drawLineHandler._enabled || drawPolyHandler._enabled) return;
             if (extState.streetViewActive) { loadStreetViewPanorama(latlng.lat, latlng.lng); return; }
 
             toggleLoading(true); const url = `https://maps.googleapis.com/maps/api/geocode/json?latlng=${latlng.lat},${latlng.lng}&key=${extState.googleApiKey}&language=vi`;
@@ -1212,7 +1236,6 @@
 
         $('#custom-directions-btn').click(function(e) { e.preventDefault(); if (extState.userGPSPosition && !document.getElementById('directions-start-input').value.trim()) { document.getElementById('directions-start-input').value = 'Vị trí của tôi'; } toggleDirectionsModal(true); });
 
-        // ĐÃ KHẮC PHỤC LỖI TẠI ĐÂY: Thêm '$(' và bọc nháy đơn đúng cấu trúc jQuery selector
         $('#get-directions-btn').click(async function() {
             if (extState.routingControl) { map.removeControl(extState.routingControl); extState.routingControl = null; }
             document.getElementById('route-summary-modal').style.display = 'none'; extState.currentActiveRouteGeo = null; extState.currentActiveInstructions = null;
