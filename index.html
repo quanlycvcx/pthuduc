@@ -544,7 +544,7 @@
                         <input type="text" id="directions-start-input" placeholder="Nhập địa điểm hoặc chọn từ bản đồ...">
                         <span class="inner-clear-btn" data-target="directions-start-input">×</span>
                         <button type="button" class="btn-map-picker" id="btn-pick-start" title="Chọn điểm bắt đầu từ Bản đồ">
-                            <svg viewBox="0 0 24 24"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5 1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>
+                            <svg viewBox="0 0 24 24"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>
                         </button>
                     </div>
                 </div>
@@ -574,7 +574,8 @@
                 </div>
                 <div class="form-group">
                     <label for="kml-description" id="save-modal-desc-label">Mô tả nội dung đo vẽ chi tiết:</label>
-                    <textarea id="kml-description" placeholder="Ví dụ: Người thực hiện: Nguyễn Văn A&#10;Nội dung: Đo đạc hiện trạng cây xanh bóng mát khu vực Thủ Đức..."></textarea>
+                    <textarea id="kml-description" placeholder="Ví dụ: Người thực hiện: Nguyễn Văn A
+Nội dung: Đo đạc hiện trạng cây xanh bóng mát khu vực Thủ Đức..."></textarea>
                 </div>
                 <div class="modal-footer">
                     <button class="btn-action btn-gray" onclick="$('#save-kml-modal').removeClass('visible')" style="border-radius:20px;">HỦY</button>
@@ -807,8 +808,6 @@
             pane: 'pane_HydroEstimatorRainfall_4', format: 'image/png', uppercase: true, transparent: true, continuousWorld : true, tiled: true, info_format: 'text/html', opacity: 0.55, identify: false, attribution: '',
         });
 
-        map.createPane('pane_RainViewerRadar');
-        map.getPane('pane_RainViewerRadar').style.zIndex = 403;
         var layer_RainViewerRadar = L.tileLayer('', {
             pane: 'pane_RainViewerRadar', opacity: 0.6, attribution: '© RainViewer'
         });
@@ -1057,11 +1056,10 @@
             hideDrawHelperUI();
         });
 
-        // HIỆU CHỈNH: Trống dữ liệu mặc định để người dùng tự do điền thông tin theo định dạng gợi ý của Placeholder
         $('#custom-export-kml-btn').click(function(e) {
             e.preventDefault(); if (drawnItems.getLayers().length === 0) { showToast("Không tìm thấy dữ liệu tự vẽ nào để xuất.", "error"); return; }
             $('#save-modal-title').text("Lưu dữ liệu đo vẽ"); $('#save-modal-desc-label').text("Mô tả nội dung đo vẽ:");
-            $('#kml-filename').val(""); // Xóa bỏ cấu trúc tự động "ThucDia_DoDac_..." cũ
+            $('#kml-filename').val(""); 
             $('#kml-description').val("");
             $('#btn-confirm-save-drive').off('click').on('click', executeSaveDrawingsToDrive); $('#save-kml-modal').addClass('visible');
         });
@@ -1069,7 +1067,6 @@
         function executeSaveDrawingsToDrive() {
             var fileName = $('#kml-filename').val().trim(); var description = $('#kml-description').val().trim() || "Không có mô tả chi tiết.";
             
-            // HIỆU CHỈNH: Ràng buộc yêu cầu nhập liệu để tránh người dùng lưu tệp trống thông tin
             if (!fileName) { 
                 alert("Vui lòng nhập tên file theo cấu trúc gợi ý (Họ tên_Nội dung) để lưu trữ!"); 
                 return; 
@@ -1250,18 +1247,30 @@
         function toggleOcrModal(show) { $('#ocr-modal').toggleClass('visible', show); }
         function toggleStreetViewModal(show) { $('#streetview-modal').toggleClass('visible', show); if(!show) { extState.streetViewActive = false; $('#custom-streetview-btn').removeClass('btn-active'); } }
         function hideWeatherInfoPanel() { document.getElementById('weather-info').classList.add('hidden'); document.getElementById('info-btn').classList.remove('btn-active'); }
-        function toggleWeatherInfo() { if (extState.lastWeatherData) { const isHidden = document.getElementById('weather-info').classList.toggle('hidden'); $('#info-btn').toggleClass('btn-active', !isHidden); } else { showToast('Vui lòng chọn địa điểm hoặc bản đồ để xem thời tiết.', 'info'); } }
+        
+        // HIỆU CHỈNH: Chức năng nút thông tin thời tiết đóng/mở trực tiếp bảng panel dựa trên class hidden
+        function toggleWeatherInfo() { 
+          if (!extState.lastWeatherData) { 
+            showToast('Vui lòng chọn địa điểm hoặc bản đồ trước để có dữ liệu thời tiết.', 'info'); 
+            return;
+          } 
+          const isHidden = document.getElementById('weather-info').classList.toggle('hidden'); 
+          $('#info-btn').toggleClass('btn-active', !isHidden); 
+        }
         $('#info-btn').click(toggleWeatherInfo);
 
+        // HIỆU CHỈNH: Tách biệt việc fetch API thời tiết và việc render hiển thị lên giao diện UI
         async function getWeather(lat, lng, locationName) {
-          document.getElementById('weather-info').innerHTML = `<div class="weather-header"><button class="weather-close-btn" onclick="hideWeatherInfoPanel()">×</button> Đang tải thời tiết...`;
-          document.getElementById('weather-info').classList.remove('hidden'); document.getElementById('info-btn').classList.add('btn-active');
           try {
             const forecastUrl = `https://api.openweathermap.org/data/2.5/forecast?lat=${lat}&lon=${lng}&appid=${extState.openWeatherApiKey}&units=metric&lang=vi&cnt=40`;
             const forecastResponse = await fetch(forecastUrl); const forecastData = await forecastResponse.json();
             if (!forecastResponse.ok || !forecastData.list?.length) throw new Error('Failed to fetch weather');
-            extState.lastWeatherData = forecastData; renderWeather(forecastData, locationName);
-          } catch (e) { console.error(e); document.getElementById('weather-info').innerHTML += `<br><span style="color:red;">Lỗi khi tải dữ liệu thời tiết.</span>`; }
+            extState.lastWeatherData = forecastData; 
+            renderWeather(forecastData, locationName);
+          } catch (e) { 
+            console.error(e); 
+            document.getElementById('weather-info').innerHTML = `<div class="weather-header"><button class="weather-close-btn" onclick="hideWeatherInfoPanel()">×</button><h3>Lỗi dữ liệu</h3></div><p style="color:red;">Không thể tải thông tin thời tiết khu vực này.</p>`; 
+          }
         }
         
         function renderWeather(forecastData, locationName) {
@@ -1325,6 +1334,7 @@
             });
         }
 
+        // HIỆU CHỈNH: Loại bỏ dòng tự động kích hoạt hiển thị .classList.remove('hidden') tại sự kiện click map
         map.on('click', async (e) => {
             L.DomEvent.stopPropagation(e); const latlng = e.latlng;
             if (extState.isPickingStart) { extState.startCoord = latlng; document.getElementById('directions-start-input').value = `${latlng.lat.toFixed(6)}, ${latlng.lng.toFixed(6)}`; resetMapPickers(); toggleDirectionsModal(true); showToast("Đã ghi nhận điểm xuất phát từ bản đồ", "success"); return; }
@@ -1337,6 +1347,8 @@
             try { const response = await fetch(url); const data = await response.json(); if (data.status === 'OK' && data.results.length > 0) locationName = data.results[0].formatted_address; } catch (error) { console.error(error); } finally { toggleLoading(false); }
             if (extState.searchMarker) map.removeLayer(extState.searchMarker);
             extState.searchMarker = L.marker(latlng).addTo(map).bindPopup(`<b>${locationName}</b><br><span style="font-size:0.85em;color:#666;">Tọa độ: ${latlng.lat.toFixed(6)}, ${latlng.lng.toFixed(6)}</span>`).openPopup();
+            
+            // Lấy ngầm dữ liệu thời tiết của điểm này để lưu vào biến trạng thái (bảng UI vẫn giữ nguyên ẩn/hiện cũ của nó)
             getWeather(latlng.lat, latlng.lng, locationName);
         });
 
@@ -1389,6 +1401,7 @@
 
         if (window.speechSynthesis && window.speechSynthesis.onvoiceschanged !== undefined) { window.speechSynthesis.onvoiceschanged = () => window.speechSynthesis.getVoices(); }
 
+         Riyad = parseDMSToDD
         function parseDMSToDD(dmsStr) {
             const dmsRegex = /(\d{1,3})\s*[°ºo0\*]?\s*(\d{1,2})\s*['’`]?\s*(\d{1,2}(?:\.\d+)?)\s*["”]?\s*([NSEW])/gi; let matches = []; let match;
             while ((match = dmsRegex.exec(dmsStr)) !== null) {
@@ -1400,6 +1413,7 @@
 
         function parseCoordsFromUrl(urlStr) { const urlRegex = /([+-]?\d{1,2}\.\d+)\s*,\s*([+-]?\d{1,3}\.\d+)/; const match = urlStr.match(urlRegex); if (match) return { lat: parseFloat(match[1]), lng: parseFloat(match[2]) }; return null; }
 
+        // HIỆU CHỈNH: Tương tự như click map, khi tìm kiếm cũng lấy ngầm dữ liệu thời tiết và không tự động bật bảng
         async function execAddressSearch() {
             const query = document.getElementById('search-input').value.trim(); if (!query) return; toggleLoading(true); let targetLatLng = null; let displayName = query;
             if (query.toLowerCase().includes('http') || query.toLowerCase().includes('maps')) { const coords = parseCoordsFromUrl(query); if (coords) { targetLatLng = L.latLng(coords.lat, coords.lng); displayName = `Tọa độ từ URL: ${coords.lat.toFixed(6)}, ${coords.lng.toFixed(6)}`; } }
@@ -1415,6 +1429,7 @@
         }
         $('#search-button').click(debounce(execAddressSearch, 300)); $('#search-input').keypress((e) => { if (e.key === 'Enter') debounce(execAddressSearch, 300)(); });
 
+        // HIỆU CHỈNH: Khi định vị GPS cũng nạp ngầm dữ liệu thời tiết và giữ nguyên trạng thái ẩn của bảng
         $('#custom-locate-btn').click(function(e) {
             e.preventDefault(); if (!navigator.geolocation) { showToast("Trình duyệt không hỗ trợ định vị.", "error"); return; } toggleLoading(true);
             navigator.geolocation.getCurrentPosition(
@@ -1465,6 +1480,7 @@
             }; img.src = imageSrc;
         }
 
+        // HIỆU CHỈNH: Xử lý ngầm dữ liệu thời tiết cho mốc OCR
         function parseAndDisplayOcr(rawText) {
             const cleanText = rawText.replace(/,/g, '.'); const latMatch = cleanText.match(/(\d{1,2}\.\d{4,10})\s?[°o0\*]?\s?N/i); const lngMatch = cleanText.match(/(\d{2,3}\.\d{4,10})\s?[°o0\*]?\s?E/i);
             if (latMatch && lngMatch) {
@@ -1474,7 +1490,9 @@
                 if (extState.ocrMarker) map.removeLayer(extState.ocrMarker);
                 const orangeIcon = L.icon({ iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-orange.png', shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-shadow.png', iconSize: [25, 41], iconAnchor: [12, 41], popupAnchor: [1, -34], shadowSize: [41, 41] });
                 extState.ocrMarker = L.marker([lat, lng], { icon: orangeIcon }).addTo(map).bindPopup(`<b>📍 Điểm ảnh mốc:</b><br>${coordsStr}`).openPopup(); map.flyTo([lat, lng], 15);
-                setTimeout(() => { toggleOcrModal(false); }, 1000); showToast("Đã định vị thành công mốc ảnh hiện trường!", "success"); getWeather(lat, lng, `Mốc hiện trường (${lat.toFixed(4)}, ${lng.toFixed(4)})`);
+                setTimeout(() => { toggleOcrModal(false); }, 1000); showToast("Đã định vị thành công mốc ảnh hiện trường!", "success"); 
+                
+                getWeather(lat, lng, `Mốc hiện trường (${lat.toFixed(4)}, ${lng.toFixed(4)})`);
             } else { alert("Không tìm thấy chuỗi tọa độ hợp lệ có cấu trúc dữ liệu N/E."); }
         }
         $('#copyCoordsBtn').click(function() { navigator.clipboard.writeText(document.getElementById('displayCoords').innerText).then(() => { $(this).text("Đã lưu!").addClass('copied'); setTimeout(() => { $(this).text("Sao chép chuỗi").removeClass('copied'); }, 2000); }); });
